@@ -54,6 +54,12 @@ const isValidPayload = (body) => {
   return true;
 };
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 /* GET api listing. */
 app.get('/', (req, res) => {
   const send = () => {

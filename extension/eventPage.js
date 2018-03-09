@@ -1,7 +1,7 @@
 const API_URL = 'http://localhost:3002';
 
 const addModal = (elem, callback) => {
-  elem.innerHTML += '<dialog><form id="classForm"><input id="classText" type="text"></form><br><button class="close">Close</button></dialog>';
+  elem.innerHTML += '<dialog><form id="classForm"><input id="classText" type="text"></form><br><button>Close</button></dialog>';
   const dialog = document.querySelector("dialog");
   const button = dialog.querySelector("button");
   button.addEventListener('click', () => {
@@ -32,17 +32,25 @@ const getRelativePoint = (img, pageX, pageY) => {
     x: 0, y: 0
   };
 
-  const imgOffsetLeft = _translateX(img.offsetLeft);
-  const translatedX = _translateX(pageX);
-  const relativeX = translatedX - imgOffsetLeft;
-  results.x = translatedX < imgOffsetLeft ? 0 : relativeX;
-  results.x = translatedX > imgOffsetLeft + img.naturalWidth ? img.naturalWidth : relativeX;
+  const rect = img.getBoundingClientRect();
 
-  const imgOffsetTop = _translateY(img.offsetTop);
+  // Handle x
+  const imgOffsetLeft = rect.left + window.scrollX;
+  const translatedX = _translateX(pageX);
+  const scaleX = img.width / img.naturalWidth;
+  const relativeX = Math.floor((translatedX - imgOffsetLeft) / scaleX);
+
+  results.x = translatedX < imgOffsetLeft ? 0 : relativeX;
+  results.x = translatedX > imgOffsetLeft + img.width ? img.naturalWidth : relativeX;
+
+  // Handle y
+  const imgOffsetTop = rect.top + window.scrollY;
   const translatedY = _translateY(pageY);
-  const relativeY = translatedY - imgOffsetTop;
+  const scaleY = img.height / img.naturalHeight;
+  const relativeY = Math.floor((translatedY - imgOffsetTop) / scaleY);
+
   results.y = translatedY < imgOffsetTop ? 0 : relativeY;
-  results.y = translatedY > imgOffsetTop + img.naturalHeight ? img.naturalHeight : relativeY;
+  results.y = translatedY > imgOffsetTop + img.height ? img.naturalHeight : relativeY;
 
   return results;
 };
@@ -128,10 +136,14 @@ const draw = (element) => {
         left: Math.min(startPoint.x, endPoint.x),
         top: Math.min(startPoint.y, endPoint.y),
       };
+      console.log('offsets: ' + JSON.stringify(offsets));
+
       const dim = {
         width: Math.max(startPoint.x, endPoint.x) - offsets.left,
         height: Math.max(startPoint.y, endPoint.y) - offsets.top
       };
+      console.log('dim: ' + JSON.stringify(dim));
+
       const rect = Object.assign({}, offsets, dim);
 
       addModal(element, (className) => {
