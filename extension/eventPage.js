@@ -1,12 +1,14 @@
 const API_URL = 'http://localhost:3002';
 
 const addModal = (elem, callback) => {
-  elem.innerHTML += '<dialog><form id="classForm"><input id="classText" type="text"></form><br><button>Close</button></dialog>';
+  elem.innerHTML += '<dialog><form id="classForm"><input id="classText" type="text"></form></dialog>';
   const dialog = document.querySelector("dialog");
+  /*
   const button = dialog.querySelector("button");
   button.addEventListener('click', () => {
+    console.log($(dialog))
     dialog.close();
-  });
+  });*/
 
   dialog.addEventListener('keypress', (e) => {
     if (e.keyCode === 13) {
@@ -56,7 +58,6 @@ const getRelativePoint = (img, pageX, pageY) => {
 };
 
 const submit = (image, rect, className) => {
-  console.log(className);
   $.ajax({
     url: API_URL,
     type: 'PUT',
@@ -129,34 +130,28 @@ const draw = (element) => {
     if (image !== null) {
       startPoint = getRelativePoint(image, mouse.startX, mouse.startY);
       endPoint = getRelativePoint(image, mouse.x, mouse.y);
-      console.log('Start point: ' + JSON.stringify(startPoint));
-      console.log('End point: ' + JSON.stringify(endPoint));
-
       const offsets = {
         left: Math.min(startPoint.x, endPoint.x),
         top: Math.min(startPoint.y, endPoint.y),
       };
-      console.log('offsets: ' + JSON.stringify(offsets));
 
       const dim = {
         width: Math.max(startPoint.x, endPoint.x) - offsets.left,
         height: Math.max(startPoint.y, endPoint.y) - offsets.top
       };
-      console.log('dim: ' + JSON.stringify(dim));
 
       const rect = Object.assign({}, offsets, dim);
 
       addModal(element, (className) => {
         submit(image, rect, className);
         image = null;
-
-        // Remove bounding box UI element
-        if (boundingElement !== null) {
-          console.log($('.boundingRectangle'));
-          $('.boundingRectangle').remove();
-        }
-        boundingElement = null;
       });
+
+      // Remove bounding box UI element
+      if (boundingElement !== null) {
+        $('.boundingRectangle').remove();
+      }
+      boundingElement = null;
     }
   };
 };
