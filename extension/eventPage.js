@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3002';
+const API_URL = 'http://localhost:3000';
 
 const addModal = (elem, callback) => {
   elem.innerHTML += '<dialog><form id="classForm"><input id="classText" type="text"></form></dialog>';
